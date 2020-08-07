@@ -3,9 +3,11 @@ var config = require('./config.js');
 const fetch = require('node-fetch');
 
 var Twitter = new twit(config);
-var quotesURL = 'https://gist.githubusercontent.com/k-horton/'
-  + 'ea67de7d1f2c55ba54383398c629b0e3/raw/'
-  + '8352f411314639a6e37e820193c98078e57382ec/quotes.json';
+
+// link to a JSON list of quotes goes here - replace with your own URL
+    // they should follow the format of { "category": ['array', 'with', 'quotes'] }
+    // (or just  { "author": ['quote'] }  works, too )
+var quotesURL = '';
 
 var postTweet = async function() {
   var params = {
@@ -14,8 +16,9 @@ var postTweet = async function() {
     lang: 'en'
   }
 
-  // todo: pull the thing to tweet here
-  var tweetToTweet = 'test tweet';
+  var tweetToTweet;
+
+  // fetches the JSON list of quotes
   var json = await fetch(quotesURL)
     .then(res => res.json())
     .catch(function(err) {
@@ -24,9 +27,10 @@ var postTweet = async function() {
 
   tweetToTweet = getRandomQuote(json);
 
+  // print statement just to verify in the console what you're tweeting
   console.log("tweeting: " + tweetToTweet);
 
-  // MAKE A POST
+  // This method makes the actual post
   Twitter.post('statuses/update',
     { status: tweetToTweet },
     function(err, data, response) {
@@ -35,19 +39,22 @@ var postTweet = async function() {
   );
 }
 
+/* selects a random quote from the JSON
+ * (you can change the logic here if your JSON follows a different format
+ * than specified above.)
+ */
 function getRandomQuote(quotesJSON) {
   const keys = Object.keys(quotesJSON);
   const randKey = Math.floor(Math.random() * keys.length);
-  const randPerson = keys[randKey];
+  const randCategory = keys[randKey];
 
-  var person = quotesJSON[randPerson];
-  console.log("person: " + person);
-  var quote = person[Math.floor(Math.random() * (Object.keys(person).length + 1))];
+  var category = quotesJSON[randCategory];
+  var quote = category[Math.floor(Math.random() * (Object.keys(category).length + 1))];
 
   return quote;
 }
 
 postTweet();
 
-// tweets every 50*12 minutes (so like almost every 12 hrs)
-setInterval(postTweet, 3000000*12);
+// tweets every 50*12 minutes (so ~every 12 hrs)
+setInterval(postTweet(), 3000000*12);
