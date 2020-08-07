@@ -57,4 +57,4 @@ function getRandomQuote(quotesJSON) {
 postTweet();
 
 // tweets every 50*12 minutes (so ~every 12 hrs)
-setInterval(postTweet(), 3000000*12);
+setInterval(postTweet, 3000000*12);
